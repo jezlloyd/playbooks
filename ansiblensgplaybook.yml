@@ -38,11 +38,11 @@
             priority: 102
             direction: 'Inbound'
       tags:
-          testing: testing
-          delete: on-exit
+          testing: 'testing'
+          delete: 'on-exit'
 
 # Delete security group
 - azure_rm_securitygroup:
       resource_group: 'mygroup'
       name: 'mysecgroup'
-      state: absent
+      state: 'absent'
