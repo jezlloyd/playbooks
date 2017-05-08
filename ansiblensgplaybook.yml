@@ -1,4 +1,7 @@
 ---
+
+-azure_rm_securitygroup:
+      resource_group: anotherrg
 # Create a security group
 - azure_rm_securitygroup:
       resource_group: 'mygroup'
