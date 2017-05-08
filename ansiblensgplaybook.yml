@@ -1,173 +1,182 @@
----
-- name: Create resource group
-  azure_rm_resourcegroup:
-      name: "{{ resource_group }}"
-      location: "{{ location }}"
-
-- name: Create security group
-  azure_rm_securitygroup:
-      resource_group: "{{ resource_group }}"
-      name: mysecgroup
-      tags:
-          testing: testing
-          delete: on-exit
-          foo: bar
-      purge_rules: yes
-      rules:
-          - name: DenySSH
-            protocol: Tcp
-            destination_port_range: 22
-            access: Deny
-            priority: 100
-            direction: Inbound
-          - name: 'AllowSSH'
-            protocol: Tcp
-            source_address_prefix: '174.109.158.0/24'
-            destination_port_range: 22
-            access: Allow
-            priority: 101
-            direction: Inbound
+--- 
+- 
+  azure_rm_resourcegroup: 
+    location: "{{ location }}"
+    name: "{{ resource_group }}"
+  name: "Create resource group"
+- 
+  azure_rm_securitygroup: 
+    name: mysecgroup
+    purge_rules: true
+    resource_group: "{{ resource_group }}"
+    rules: 
+      - 
+        access: Deny
+        destination_port_range: 22
+        direction: Inbound
+        name: DenySSH
+        priority: 100
+        protocol: Tcp
+      - 
+        access: Allow
+        destination_port_range: 22
+        direction: Inbound
+        name: AllowSSH
+        priority: 101
+        protocol: Tcp
+        source_address_prefix: 174.109.158.0/24
+    tags: 
+      delete: on-exit
+      foo: bar
+      testing: testing
+  name: "Create security group"
   register: output
-
-- debug: var=output
+- 
+  debug: var=output
   when: playbook_debug
-
-- assert: { that: "{{ output.state.rules | length }} == 2" }
-
-- name: Gather facts by tags
-  azure_rm_securitygroup_facts:
-      resource_group: "{{ resource_group }}"
-      tags:
-        - testing
-        - foo:bar
+- 
+  assert: 
+    that: "{{ output.state.rules | length }} == 2"
+- 
+  azure_rm_securitygroup_facts: 
+    resource_group: "{{ resource_group }}"
+    tags: 
+      - testing
+      - "foo:bar"
+  name: "Gather facts by tags"
   register: output
-
-- debug: var=output
+- 
+  debug: var=output
   when: playbook_debug
-
-- assert:
-      that: azure_securitygroups | length == 1
-
-- name: Add/Update rules on existing security group
-  azure_rm_securitygroup:
-      resource_group: "{{ resource_group }}"
-      name: mysecgroup
-      rules:
-          - name: DenySSH
-            protocol: Tcp
-            destination_port_range: 22-23
-            access: Deny
-            priority: 100
-          - name: AllowSSHFromHome
-            protocol: Tcp
-            source_address_prefix: '174.109.158.0/24'
-            destination_port_range: 22-23
-            priority: 102
+- 
+  assert: 
+    that: "azure_securitygroups | length == 1"
+- 
+  azure_rm_securitygroup: 
+    name: mysecgroup
+    resource_group: "{{ resource_group }}"
+    rules: 
+      - 
+        access: Deny
+        destination_port_range: 22-23
+        name: DenySSH
+        priority: 100
+        protocol: Tcp
+      - 
+        destination_port_range: 22-23
+        name: AllowSSHFromHome
+        priority: 102
+        protocol: Tcp
+        source_address_prefix: 174.109.158.0/24
+  name: "Add/Update rules on existing security group"
   register: output
-
-- debug: var=output
+- 
+  debug: var=output
   when: playbook_debug
-
-- assert: { that: "{{ output.state.rules | length }} == 3" }
-
-- name: Test idempotence
-  azure_rm_securitygroup:
-      resource_group: "{{ resource_group }}"
-      name: mysecgroup
-      rules:
-          - name: DenySSH
-            protocol: Tcp
-            destination_port_range: 22-23
-            access: Deny
-            priority: 100
-          - name: AllowSSHFromHome
-            protocol: Tcp
-            source_address_prefix: '174.109.158.0/24'
-            destination_port_range: 22-23
-            priority: 102
+- 
+  assert: 
+    that: "{{ output.state.rules | length }} == 3"
+- 
+  azure_rm_securitygroup: 
+    name: mysecgroup
+    resource_group: "{{ resource_group }}"
+    rules: 
+      - 
+        access: Deny
+        destination_port_range: 22-23
+        name: DenySSH
+        priority: 100
+        protocol: Tcp
+      - 
+        destination_port_range: 22-23
+        name: AllowSSHFromHome
+        priority: 102
+        protocol: Tcp
+        source_address_prefix: 174.109.158.0/24
+  name: "Test idempotence"
   register: output
-
-- debug: var=output
+- 
+  debug: var=output
   when: playbook_debug
-
-- assert:
-      that: not output.changed
-
-- name: Update tags
-  azure_rm_securitygroup:
-      resource_group: "{{ resource_group }}"
-      name: mysecgroup
-      tags:
-          testing: testing
-          delete: never
-          baz: bar
+- 
+  assert: 
+    that: "not output.changed"
+- 
+  azure_rm_securitygroup: 
+    name: mysecgroup
+    resource_group: "{{ resource_group }}"
+    tags: 
+      baz: bar
+      delete: never
+      testing: testing
+  name: "Update tags"
   register: output
-
-- debug: var=output
+- 
+  debug: var=output
   when: playbook_debug
-
-- assert:
-      that:
-          - output.state.tags | length == 3
-          - output.state.tags.delete == 'never'
-
-- name: Purge tags
-  azure_rm_securitygroup:
-      resource_group: "{{ resource_group }}"
-      name: mysecgroup
-      tags:
-          testing: testing
-          delete: on-exit
+- 
+  assert: 
+    that: 
+      - "output.state.tags | length == 3"
+      - "output.state.tags.delete == 'never'"
+- 
+  azure_rm_securitygroup: 
+    name: mysecgroup
+    resource_group: "{{ resource_group }}"
+    tags: 
+      delete: on-exit
+      testing: testing
+  name: "Purge tags"
   register: output
-
-- debug: var=output
+- 
+  debug: var=output
   when: playbook_debug
-
-- assert:
-      that:
-          - output.state.tags | length == 2
-          - output.state.tags.delete == 'on-exit'
-
-- name: Gather facts for one accounts
-  azure_rm_securitygroup_facts:
-      resource_group: "{{ resource_group }}"
-      name: mysecgroup
+- 
+  assert: 
+    that: 
+      - "output.state.tags | length == 2"
+      - "output.state.tags.delete == 'on-exit'"
+- 
+  azure_rm_securitygroup_facts: 
+    name: mysecgroup
+    resource_group: "{{ resource_group }}"
+  name: "Gather facts for one accounts"
   register: output
-
-- debug: var=output
+- 
+  debug: var=output
   when: playbook_debug
-
-- assert:
-      that:
-          - azure_securitygroups | length == 1
-
-- name: Gather facts for all accounts
-  azure_rm_securitygroup_facts:
-      resource_group: "{{ resource_group }}"
+- 
+  assert: 
+    that: 
+      - "azure_securitygroups | length == 1"
+- 
+  azure_rm_securitygroup_facts: 
+    resource_group: "{{ resource_group }}"
+  name: "Gather facts for all accounts"
   register: output
-
-- debug: var=output
+- 
+  debug: var=output
   when: playbook_debug
-
-- assert:
-      that:
-          - azure_securitygroups | length > 0
-
-- name: Delete all security groups
-  azure_rm_securitygroup:
-      resource_group: "{{ resource_group }}"
-      name: "{{ item.name }}"
-      state: absent
+- 
+  assert: 
+    that: 
+      - "azure_securitygroups | length > 0"
+- 
+  azure_rm_securitygroup: 
+    name: "{{ item.name }}"
+    resource_group: "{{ resource_group }}"
+    state: absent
+  name: "Delete all security groups"
   with_items: "{{ azure_securitygroups }}"
-
-- name: Should have no security groups remaining
-  azure_rm_securitygroup_facts:
-      resource_group: "{{ resource_group }}"
+- 
+  azure_rm_securitygroup_facts: 
+    resource_group: "{{ resource_group }}"
+  name: "Should have no security groups remaining"
   register: output
-
-- debug: var=output
+- 
+  debug: var=output
   when: playbook_debug
-
-- assert:
-      that:
-          - azure_securitygroups | length == 0
+- 
+  assert: 
+    that: 
+      - "azure_securitygroups | length == 0"
