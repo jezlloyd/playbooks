@@ -3,9 +3,9 @@
 - azure_rm_securitygroup:
       resource_group: 'mygroup'
       name: mysecgroup
-      purge_rules: yes
+      purge_rules: 'yes'
       rules:
-          - name: DenySSH
+          - name: 'DenySSH'
             protocol: TCP
             destination_port_range: 22
             access: Deny
