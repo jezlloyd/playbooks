@@ -1,7 +1,7 @@
 --- 
 - 
   azure_rm_securitygroup: 
-    name: mysecgroup
+    name: "mysecgroup"
     purge_rules: true
     resource_group: mygroup
     rules: 
