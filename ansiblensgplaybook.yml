@@ -1,3 +1,4 @@
+---
 - name: Create resource group
   azure_rm_resourcegroup:
       name: "{{ resource_group }}"
