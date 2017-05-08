@@ -1,7 +1,7 @@
 ---
 # Create a security group
 - azure_rm_securitygroup:
-      resource_group: mygroup
+      resource_group: 'mygroup'
       name: mysecgroup
       purge_rules: yes
       rules:
